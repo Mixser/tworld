@@ -1,7 +1,7 @@
 from .base import *
 
 DEBUG = True
-TEMPLATES[0]['OPTIONS']['TEMPLATE_DEBUG'] = True
+TEMPLATES[0]['OPTIONS']['debug'] = True
 CURRENT_HOST = '127.0.0.1'
 BASE_URL = 'http://' + CURRENT_HOST
 

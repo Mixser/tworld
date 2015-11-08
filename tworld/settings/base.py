@@ -26,6 +26,7 @@ SECRET_KEY = '#1tp96c@9nvk41f=b!#&$=n#m@ax9^0089(l1-oq(h3z^n6n$5'
 DEBUG = True
 
 ALLOWED_HOSTS = []
+AUTH_USER_MODEL = 'base.User'
 
 
 # Application definition
@@ -37,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'crispy_forms',
     'base',
     'landing'
 )
@@ -116,5 +118,5 @@ STATICFILES_FINDERS = (
 )
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static')
+    os.path.join(BASE_DIR, 'static'),
 )

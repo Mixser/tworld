@@ -1,0 +1,23 @@
+{% load staticfiles %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'base/css/bootstrap.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'base/css/grayscale.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'base/font-awesome/css/font-awesome.css' %}" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+
+    <title>Title</title>
+
+</head>
+<body>
+
+{% block content %}{% endblock %}
+
+<script type="text/javascript" src="{% static 'base/js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'base/js/jquery.easing.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'base/js/bootstrap.js' %}"></script>
+<script type="text/javascript" src="{% static 'base/js/grayscale.js' %}"></script>
+</body>
+</html>

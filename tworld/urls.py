@@ -16,9 +16,12 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
+from base import urls as base_urls
 from landing import urls as landing_urls
+
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^$', include(base_urls)),
     url(r'^$', include(landing_urls)),
 ]

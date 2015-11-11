@@ -52,6 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'base.middleware.CreateApiObjectMiddleware',
 )
 
 ROOT_URLCONF = 'tworld.urls'
@@ -120,3 +121,8 @@ STATICFILES_FINDERS = (
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+WOT_API_ID = "95b1b0a4aee9778b825653431af5379e"
+
+
+CRISPY_TEMPLATE_PACK = 'bootstrap'

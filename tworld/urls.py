@@ -22,6 +22,6 @@ from landing import urls as landing_urls
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^$', include(base_urls)),
-    url(r'^$', include(landing_urls)),
+    url(r'^', include(base_urls)),
+    url(r'^', include(landing_urls)),
 ]

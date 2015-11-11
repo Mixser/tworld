@@ -1,4 +1,8 @@
 {% extends 'base/base_layout.html' %}
 
 {% block content %}
+    {{ account }}
+    {% for tank in tanks %}
+        {{ tank.stats }} <br/>
+    {% endfor %}
 {% endblock %}

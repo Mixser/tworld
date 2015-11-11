@@ -30,12 +30,18 @@ class TankEncyclopediaInfo(ApiObject):
     pass
 
 
+class TankStats(ApiObject):
+    pass
+
+
 class Tank(ApiObject):
     ENCYCLOPEDIA_INFO = 'encyclopedia/vehicles'
+    TANK_STATS = 'tanks/stats'
 
     def __init__(self, api, data):
         super(Tank, self).__init__(api, data)
         self._encyclopedia_info = None
+        self._stats = None
 
     def __get_encyclopedia_info(self):
         params = {'tank_id': self.tank_id}
@@ -47,6 +53,16 @@ class Tank(ApiObject):
             self._encyclopedia_info = self.__get_encyclopedia_info()
         return self._encyclopedia_info
 
+    @property
+    def stats(self):
+        print 'try to get stats'
+        if not self._stats:
+            params = {'account_id': self.account_id}
+            self._stats = ObjectIterator(self._api, self.ENCYCLOPEDIA_INFO, TankStats, params).get_first_result()
+        return self._stats
+
+    def __str__(self):
+        return "%s" % self.tank_id
 
 
 class User(ApiObject):
@@ -61,10 +77,21 @@ class User(ApiObject):
 
     @classmethod
     def get_user_by_nickname(cls, api, name):
+        """
+        :param api:wot_api.api.Api
+        :param name: str
+        :return: User
+        """
         return ObjectIterator(api, cls.SEARCH_URL, User, params={'search': name, 'type': 'exact'}).get_single_result()
 
     @classmethod
     def search_by_nickname(cls, api, nickname, params=None):
+        """
+        :param api: wot_api.api.Api
+        :param nickname: str
+        :param params: dict
+        :return: ObjectIterator
+        """
         params = params or {}
         params['search'] = nickname
         return ObjectIterator(api, cls.SEARCH_URL, User, params=params)
@@ -89,7 +116,8 @@ class User(ApiObject):
     @property
     def tanks(self):
         if self._tanks is None:
-            self._tanks = list(self.__get_tanks())
+            tank_list = map(lambda x: setattr(x, 'account_id', self.account_id) or x, self.__get_tanks())
+            self._tanks = tank_list
         return self._tanks
 
     def __str__(self):

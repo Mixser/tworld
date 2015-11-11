@@ -3,6 +3,7 @@ import urllib
 import json
 
 from wot_api.exceptions import get_exception
+from wot_api.objects import User
 
 
 class ApiResponse(object):
@@ -65,6 +66,20 @@ class Api(object):
             raise api_response.error()
 
         return api_response
+
+    def get_by_nickname(self, nickname):
+        """
+        :param nickname:str
+        :return: objects.User
+        """
+        return User.get_user_by_nickname(self, nickname)
+
+    def search_user_by_nickname(self, nickname):
+        """
+        :param nickname:str
+        :return: wot_api.objects.ObjectIterator
+        """
+        return User.search_by_nickname(self, nickname)
 
 
 if __name__ == "__main__":

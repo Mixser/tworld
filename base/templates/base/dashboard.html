@@ -1,8 +1,36 @@
 {% extends 'base/base_layout.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
-    {{ account }}
-    {% for tank in tanks %}
-        {{ tank.stats }} <br/>
-    {% endfor %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-offset-4 col-lg-4">
+                {% crispy search_form %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-offset-3 col-lg-7">
+                {% if users %}
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <td>#</td>
+                            <td>Account id</td>
+                            <td>Nickname</td>
+                        </tr>
+                        </thead>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ user.account_id }}</td>
+                                <td>{{ user.nickname }}</td>
+                                <td><a href="">View account info</a></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
 {% endblock %}

@@ -1,3 +1,23 @@
+from collections import OrderedDict
+
+
+class FieldsMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(FieldsMixin, self).__init__(*args, **kwargs)
+        self._fields = None
+
+    def fields(self):
+        """
+        :return: OrderedDict
+        """
+        if not self._fields:
+            keys = sorted(filter(lambda x: not x.startswith('_'), self.__dict__.keys()))
+            self._fields = OrderedDict()
+            for key in keys:
+                self._fields[key] = self.__dict__[key]
+        return self._fields
+
+
 class ApiObject(object):
     def __init__(self, api, data):
         self._data = data
@@ -22,15 +42,15 @@ class ApiObject(object):
         return str(self._data)
 
 
-class AccountInfo(ApiObject):
+class AccountInfo(FieldsMixin, ApiObject):
     pass
 
 
-class TankEncyclopediaInfo(ApiObject):
+class TankEncyclopediaInfo(FieldsMixin, ApiObject):
     pass
 
 
-class TankStats(ApiObject):
+class TankStats(FieldsMixin, ApiObject):
     pass
 
 
@@ -58,8 +78,13 @@ class Tank(ApiObject):
         print 'try to get stats'
         if not self._stats:
             params = {'account_id': self.account_id}
-            self._stats = ObjectIterator(self._api, self.ENCYCLOPEDIA_INFO, TankStats, params).get_first_result()
+            self._stats = ObjectIterator(self._api, self.TANK_STATS, TankStats, params).get_first_result()
         return self._stats
+
+    @classmethod
+    def get_account_tanks(cls, api, account_id, tank_id=None):
+        params = {'account_id': account_id, 'tank_id': tank_id or ''}
+        return ObjectIterator(api, cls.TANK_STATS, TankStats, params=params)
 
     def __str__(self):
         return "%s" % self.tank_id
@@ -83,6 +108,18 @@ class User(ApiObject):
         :return: User
         """
         return ObjectIterator(api, cls.SEARCH_URL, User, params={'search': name, 'type': 'exact'}).get_single_result()
+
+    @classmethod
+    def get_user_info_by_account_id(cls, api, account_id):
+        """
+
+        :param api: wot_api.api.Api
+        :param account_id: int
+        :return: AccountInfo
+        """
+        params = {'account_id': account_id}
+        account_info = ObjectIterator(api, cls.PROFILE_INFO, AccountInfo, params=params).get_single_result()
+        return account_info
 
     @classmethod
     def search_by_nickname(cls, api, nickname, params=None):
@@ -131,7 +168,7 @@ class ObjectIterator(object):
         self._target_object_class = target_object_class
         self._queue = []
         self._method = source
-        self.load_objects()
+        self.__load_objects()
 
     def __iter__(self):
         return self
@@ -142,7 +179,7 @@ class ObjectIterator(object):
         return self._queue.pop()
 
     def get_single_result(self):
-        if len(self._queue) == 1:
+        if len(self._queue) <= 1:
             return self.next()
         raise ValueError("The API returned multiply objects, but you are expecting only one.")
 
@@ -151,7 +188,7 @@ class ObjectIterator(object):
 
     next = __next__
 
-    def load_objects(self):
+    def __load_objects(self):
         response = self._api.call(self._method, params=self._params)
         if response.is_success():
             json_response = response.json()

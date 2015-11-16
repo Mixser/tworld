@@ -3,7 +3,7 @@ import urllib
 import json
 
 from wot_api.exceptions import get_exception
-from wot_api.objects import User
+from wot_api.objects import User, Tank
 
 
 class ApiResponse(object):
@@ -51,6 +51,7 @@ class Api(object):
         self._language = language
 
     def call(self, path, params=None, headers=None):
+        print 'Do call! (%s %s %s)' % (path, params, headers)
         params = params or {}
         headers = headers or {}
 
@@ -67,6 +68,13 @@ class Api(object):
 
         return api_response
 
+    def get_account_tanks(self, account_id):
+        """
+        :param account_id:int
+        :return: wot_api.objects.ObjectIterator
+        """
+        return Tank.get_account_tanks(self, account_id)
+
     def get_by_nickname(self, nickname):
         """
         :param nickname:str
@@ -81,11 +89,25 @@ class Api(object):
         """
         return User.search_by_nickname(self, nickname)
 
+    def get_user_info_by_account_id(self, account_id):
+        """
+        :param account_id: int
+        :return: wot_api.objects.AccountInfo
+        """
+        return User.get_user_info_by_account_id(self, account_id)
+
+    def get_tank_info(self, account_id, tank_id):
+        """
+        :param account_id: int
+        :param tank_id: int
+        :return: wot_api.objects.TankStats
+        """
+        return Tank.get_account_tanks(self, account_id, tank_id).get_single_result()
 
 if __name__ == "__main__":
     from objects import User
 
     api = Api(application_id="95b1b0a4aee9778b825653431af5379e")
-    user = User.get_user_by_nickname(api, 'mike')
-    tank = user.tanks[0]
-    print tank.encyclopedia_info
+
+    tanks = api.get_tank_info(356, 15649)
+    print tanks

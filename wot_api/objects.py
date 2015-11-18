@@ -17,18 +17,28 @@ class FieldsMixin(object):
                 self._fields[key] = self.__dict__[key]
         return self._fields
 
+    def get(self, name, default=None):
+        if hasattr(self, name):
+            return getattr(self, name)
+        return default
+
 
 class ApiObject(object):
     def __init__(self, api, data):
         self._data = data
+        self._namespaces = []
         self.__set_value(None, data)
         self._api = api
 
-    def __set_value(self, key, value):
+    def __set_value(self, key, value, prefix=''):
         if isinstance(value, dict):
+            prefix = prefix + '__' + str(key) if prefix else key
             for k, v in value.items():
-                self.__set_value(k, v)
+                self.__set_value(k, v, prefix)
         else:
+            if prefix and prefix not in self._namespaces:
+                self._namespaces.append(prefix)
+            key = prefix + '__' + key if prefix else key
             setattr(self, key, value)
 
     @classmethod
@@ -44,7 +54,6 @@ class ApiObject(object):
 
 class AccountInfo(FieldsMixin, ApiObject):
     pass
-
 
 class TankEncyclopediaInfo(FieldsMixin, ApiObject):
     pass
@@ -110,14 +119,17 @@ class User(ApiObject):
         return ObjectIterator(api, cls.SEARCH_URL, User, params={'search': name, 'type': 'exact'}).get_single_result()
 
     @classmethod
-    def get_user_info_by_account_id(cls, api, account_id):
+    def get_user_info_by_account_id(cls, api, account_id, fields=None):
         """
 
-        :param api: wot_api.api.Api
-        :param account_id: int
+        :type api: wot_api.api.Api
+        :type account_id: int
+        :type fields: list
         :return: AccountInfo
         """
-        params = {'account_id': account_id}
+        fields = fields or []
+        fields = ','.join(map(lambda x: str(x), fields))
+        params = {'account_id': account_id, 'fields': fields}
         account_info = ObjectIterator(api, cls.PROFILE_INFO, AccountInfo, params=params).get_single_result()
         return account_info
 

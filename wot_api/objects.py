@@ -191,7 +191,9 @@ class ObjectIterator(object):
         return self._queue.pop()
 
     def get_single_result(self):
-        if len(self._queue) <= 1:
+        if len(self._queue) == 0:
+            return None
+        if len(self._queue) == 1:
             return self.next()
         raise ValueError("The API returned multiply objects, but you are expecting only one.")
 

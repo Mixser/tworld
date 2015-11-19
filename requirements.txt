@@ -1,5 +1,7 @@
 Django==1.8.6
 django-crispy-forms==1.5.2
+django-debug-toolbar==1.4
+django-grappelli==2.7.2
 psycopg2==2.6.1
 requests==2.8.1
 wheel==0.24.0

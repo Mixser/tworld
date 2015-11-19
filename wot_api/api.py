@@ -29,6 +29,9 @@ class ApiResponse(object):
         return self._http_status
 
     def is_success(self):
+        """
+        :rtype: bool
+        """
         json_body = self.json()
 
         if isinstance(json_body, dict) and json_body.get('status', None) == 'ok':
@@ -40,6 +43,9 @@ class ApiResponse(object):
         return not self.is_success()
 
     def error(self):
+        """
+        :rtype: wot_api.exceptions.BaseApiException
+        """
         return get_exception(self.json())
 
 
@@ -70,37 +76,37 @@ class Api(object):
 
     def get_account_tanks(self, account_id):
         """
-        :param account_id:int
-        :return: wot_api.objects.ObjectIterator
+        :type account_id:int
+        :rtype: wot_api.objects.ObjectIterator
         """
         return Tank.get_account_tanks(self, account_id)
 
     def get_by_nickname(self, nickname):
         """
-        :param nickname:str
-        :return: objects.User
+        :type nickname:str
+        :rtype: objects.User
         """
         return User.get_user_by_nickname(self, nickname)
 
     def search_user_by_nickname(self, nickname):
         """
-        :param nickname:str
-        :return: wot_api.objects.ObjectIterator
+        :type nickname:str
+        :rtype: wot_api.objects.ObjectIterator
         """
         return User.search_by_nickname(self, nickname)
 
     def get_user_info_by_account_id(self, account_id):
         """
         :param account_id: int
-        :return: wot_api.objects.AccountInfo
+        :rtype: wot_api.objects.AccountInfo
         """
         return User.get_user_info_by_account_id(self, account_id)
 
     def get_tank_info(self, account_id, tank_id):
         """
-        :param account_id: int
-        :param tank_id: int
-        :return: wot_api.objects.TankStats
+        :type account_id: int
+        :type tank_id: int
+        :rtype: wot_api.objects.TankStats
         """
         return Tank.get_account_tanks(self, account_id, tank_id).get_single_result()
 

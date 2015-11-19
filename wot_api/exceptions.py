@@ -85,6 +85,10 @@ class SourceNotAvailable(BaseApiException):
 
 
 def get_exception(response_body):
+    """
+    :type response_body: dict
+    :rtype: BaseApiException
+    """
     __EXCEPTIONS__ = [FieldNotSpecified, FieldNotFound, MethodNotFound, MethodDisabled, ListLimitExceeded,
                       ApplicationIsBlocked, InvalidField, InvalidApplicationId, InvalidIpAddress, RequestLimitExceeded,
                       SourceNotAvailable]
@@ -102,4 +106,4 @@ def get_exception(response_body):
     elif InvalidApplicationId in exceptions:
         return InvalidApplicationId(code, message, InvalidApplicationId.error_description)
 
-    return Exception('%s %s' % (code, message))
+    return BaseApiException(code, message, '')

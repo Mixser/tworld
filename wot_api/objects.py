@@ -8,7 +8,7 @@ class FieldsMixin(object):
 
     def fields(self):
         """
-        :return: OrderedDict
+        :rtype: OrderedDict
         """
         if not self._fields:
             keys = sorted(filter(lambda x: not x.startswith('_'), self.__dict__.keys()))
@@ -55,6 +55,7 @@ class ApiObject(object):
 class AccountInfo(FieldsMixin, ApiObject):
     pass
 
+
 class TankEncyclopediaInfo(FieldsMixin, ApiObject):
     pass
 
@@ -92,6 +93,9 @@ class Tank(ApiObject):
 
     @classmethod
     def get_account_tanks(cls, api, account_id, tank_id=None):
+        """
+        :rtype: ObjectIterator
+        """
         params = {'account_id': account_id, 'tank_id': tank_id or ''}
         return ObjectIterator(api, cls.TANK_STATS, TankStats, params=params)
 
@@ -112,9 +116,9 @@ class User(ApiObject):
     @classmethod
     def get_user_by_nickname(cls, api, name):
         """
-        :param api:wot_api.api.Api
-        :param name: str
-        :return: User
+        :type api:wot_api.api.Api
+        :type name: str
+        :rtype: User
         """
         return ObjectIterator(api, cls.SEARCH_URL, User, params={'search': name, 'type': 'exact'}).get_single_result()
 
@@ -125,7 +129,7 @@ class User(ApiObject):
         :type api: wot_api.api.Api
         :type account_id: int
         :type fields: list
-        :return: AccountInfo
+        :rtype: AccountInfo
         """
         fields = fields or []
         fields = ','.join(map(lambda x: str(x), fields))
@@ -136,10 +140,10 @@ class User(ApiObject):
     @classmethod
     def search_by_nickname(cls, api, nickname, params=None):
         """
-        :param api: wot_api.api.Api
-        :param nickname: str
-        :param params: dict
-        :return: ObjectIterator
+        :type api: wot_api.api.Api
+        :type nickname: str
+        :type params: dict
+        :rtype: ObjectIterator
         """
         params = params or {}
         params['search'] = nickname

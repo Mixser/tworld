@@ -1,0 +1,52 @@
+{% extends 'base/base_layout.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-offset-3 col-lg-6">
+                <canvas id="canvas" height="450" width="600"></canvas>
+                <div id="legend">
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block additional_scripts %}
+    <script src="{% static 'base/js/Chart.js' %}"></script>
+    <script>
+        $(function () {
+            var randomColor = function () {
+                var letters = '0123456789ABCDEF'.split('');
+                var color = '#';
+                for (var i = 0; i < 6; i++ ) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            };
+
+            var data = {
+                labels: {{dates|safe}},
+                datasets: [
+                    {% for d in data %}
+                    {
+                        label: "{{forloop.counter}}",
+                        fillColor: randomColor(),
+                        strokeColor: randomColor(),
+                        pointColor: randomColor(),
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: randomColor(),
+                        data: {{d}}
+                    },
+                    {% endfor %}
+                ]
+            };
+
+            var ctx = document.getElementById("canvas").getContext("2d");
+            var myLineChart = new Chart(ctx).Line(data);
+        });
+    </script>
+{% endblock %}

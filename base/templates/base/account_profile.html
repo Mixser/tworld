@@ -1,8 +1,17 @@
 {% extends 'base/base_layout.html' %}
+{% load crispy_forms_tags %}
+{% block navbar %}
+    <li>hello</li>
+{% endblock %}
 
 {% block content %}
     <div class="container-fluid">
         <div class="row">
+        {% if form %}
+            {% crispy form %}
+        {% else %}
+            <a href="{% url 'account_statistic' account_id=account_statistics.account_id%}">View stats</a>
+        {% endif %}
             <div class="col-lg-offset-3 col-lg-6">
                 <table class="table table-responsive">
                     <thead>
@@ -11,7 +20,7 @@
                             <td>value</td>
                         </tr>
                     </thead>
-                {%  for k, v in account_info.stats.items %}
+                {%  for k, v in account_statistics.fields.items %}
                     <tr>
                         <td>{{ k }}</td>
                         <td>{{ v }}</td>

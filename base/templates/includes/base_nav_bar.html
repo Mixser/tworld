@@ -16,15 +16,23 @@
                 <li class="hidden">
                     <a href="#page-top"></a>
                 </li>
+
                 <li>
-                    <a class="page-scroll" href="#about">About</a>
+                    <a href="{% url 'dashboard' %}">Home</a>
                 </li>
-                <li>
-                    <a class="page-scroll" href="#download">Download</a>
-                </li>
-                <li>
-                    <a class="page-scroll" href="#contact">Contact</a>
-                </li>
+
+
+                {% if request.account_id %}
+                    <li>
+                        <a href="{% url 'account_profile' account_id=request.account_id %}">Profile</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'account_tanks' account_id=request.account_id %}">User's tanks</a>
+                    </li>
+
+                {% endif %}
+
+
             </ul>
         </div>
         <!-- /.navbar-collapse -->

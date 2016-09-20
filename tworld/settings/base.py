@@ -32,12 +32,14 @@ AUTH_USER_MODEL = 'base.User'
 # Application definition
 
 INSTALLED_APPS = (
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'debug_toolbar',
     'crispy_forms',
     'base',
     'landing'
@@ -70,6 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'base.context_processors.url_names'
             ],
         },
     },
@@ -118,9 +121,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
 )
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
 
 WOT_API_ID = "95b1b0a4aee9778b825653431af5379e"
 

@@ -2,8 +2,11 @@ from django.core import validators
 from django.core.mail import send_mail
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager as DefaultUserManager
+from django.db.models import Avg, F
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
+from base.mixins import FieldsMixin
 
 
 class UserManager(DefaultUserManager):
@@ -29,7 +32,6 @@ class UserManager(DefaultUserManager):
     def create_superuser(self, email, password, **extra_fields):
         return self._create_user(email, password, True, True,
                                  **extra_fields)
-
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -58,3 +60,149 @@ class User(AbstractBaseUser, PermissionsMixin):
         Sends an email to this User.
         """
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+class WotAccount(models.Model):
+    account_id = models.IntegerField(unique=True, db_index=True)
+    nickname = models.CharField(max_length=256, unique=True, db_index=True)
+
+    def __unicode__(self):
+        return "%s %d" % (self.nickname, self.account_id)
+
+
+class Tank(models.Model):
+    tank_id = models.IntegerField(unique=True)
+    accounts = models.ManyToManyField(WotAccount, related_name='tanks')
+
+    avg_draws = models.FloatField(default=0.0)
+    avg_losses = models.FloatField(default=0.0)
+    avg_wins = models.FloatField(default=0.0)
+    avg_frags = models.FloatField(default=0.0)
+    avg_survived_battles = models.FloatField(default=0.0)
+
+
+    probability_of_survival = models.FloatField(default=0.0)
+    probability_of_losses = models.FloatField(default=0.0)
+    probability_of_wins = models.FloatField(default=0.0)
+    probability_of_draws = models.FloatField(default=0.0)
+
+
+    def update_general_statistic(self):
+        statistic_objects = self.tankstatistic_set.all()
+        count_of_statistics = len(statistic_objects)
+
+        t = TankStatistic.objects.raw('SELECT DISTINCT ON (a.tank_id) *, b.max FROM base_tankstatistic AS a '
+                                      'INNER JOIN ('
+                                      '   SELECT account_id, tank_id, MAX(battles) AS max FROM base_tankstatistic '
+                                      '   GROUP BY account_id, tank_id'
+                                      ') AS b ON a.account_id = b.account_id AND a.tank_id = b.tank_id '
+                                      'WHERE a.battles = b.max')
+        t = list(t)
+
+
+        values = {
+            'avg_wins': Avg(F('wins')/F('battles')),
+            'avg_losses': Avg(F('losses')/F('battles')),
+            'avg_draws': Avg(F('draws')/F('losses')),
+
+        }
+
+        self.tankstatistic_set.values('tank_id' ).aggregate(avg_draws=Avg('draws'), avg_wins=Avg('wins'), avg_losses=Avg('losses'))
+
+
+class ObjectStatisticManager(models.Manager):
+
+    def build_from_api_object(self, api_obj, commit=True):
+        """
+        :param commit: save object to db permanently
+        :type api_obj: wot_api.objects.AccountInfo
+        :type commit: bool
+        :rtype: wot_api.objects.ApiObject
+        """
+        namespaces = ['statistics__all__', 'all__']
+        fields = self.model.get_field_names()
+        data = {}
+        for field_name in fields:
+            for namespace in namespaces:
+                field_name_with_namespace = namespace + field_name
+                if hasattr(api_obj, field_name_with_namespace):
+                    data[field_name] = getattr(api_obj, field_name_with_namespace)
+                elif hasattr(api_obj, field_name):
+                    data[field_name] = getattr(api_obj, field_name)
+        obj = self.model(**data)
+        if commit:
+            obj.save()
+        return obj
+
+
+class TankStatistic(FieldsMixin, models.Model):
+    excluded_fields = ('id', 'account', 'tank')
+
+    account = models.ForeignKey(WotAccount, to_field='account_id', db_index=True)
+    tank = models.ForeignKey(Tank, to_field='tank_id', db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    mark_of_mastery = models.IntegerField()
+    max_frags = models.IntegerField()
+    max_xp = models.IntegerField()
+    avg_damage_blocked = models.FloatField()
+    battle_avg_xp = models.FloatField()
+    battles = models.FloatField()
+    capture_points = models.IntegerField()
+    damage_dealt = models.IntegerField()
+    damage_received = models.IntegerField()
+
+    draws = models.IntegerField()
+    losses = models.IntegerField()
+    wins = models.IntegerField()
+
+    frags = models.IntegerField()
+
+    survived_battles = models.IntegerField()
+
+    objects = ObjectStatisticManager()
+
+
+class AccountStatistic(FieldsMixin, models.Model):
+    excluded_fields = ('id', 'account', 'created_at')
+
+    account = models.ForeignKey(WotAccount, to_field='account_id', related_name='statistics')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    global_rating = models.IntegerField()
+
+    avg_damage_assisted = models.FloatField()
+    avg_damage_assisted_radio = models.FloatField()
+    avg_damage_assisted_track = models.FloatField()
+    avg_damage_blocked = models.FloatField()
+
+    battle_avg_xp = models.IntegerField()
+    capture_points = models.IntegerField()
+    damage_dealt = models.IntegerField()
+    damage_received = models.IntegerField()
+    direct_hits_received = models.IntegerField()
+    dropped_capture_points = models.IntegerField()
+    explosion_hits = models.IntegerField()
+    explosion_hits_received = models.IntegerField()
+
+    frags = models.IntegerField()
+    hits = models.IntegerField()
+    hits_percents = models.FloatField()
+
+    max_damage = models.IntegerField()
+    max_damage_tank_id = models.IntegerField()
+    max_frags = models.IntegerField()
+    max_frags_tank_id = models.IntegerField()
+    max_xp = models.IntegerField()
+    max_xp_tank_id = models.IntegerField()
+
+    shots = models.IntegerField()
+    spotted = models.IntegerField()
+
+    survived_battles = models.IntegerField()
+
+    draws = models.IntegerField()
+    losses = models.IntegerField()
+    wins = models.IntegerField()
+
+    objects = ObjectStatisticManager()

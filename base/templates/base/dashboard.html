@@ -24,7 +24,31 @@
                                 <td>{{ forloop.counter }}</td>
                                 <td>{{ user.account_id }}</td>
                                 <td>{{ user.nickname }}</td>
-                                <td><a href="">View account info</a></td>
+                                <td><a href="{% url 'account_profile' account_id=user.account_id %}">View account info</a></td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-offset-3 col-lg-7">
+                {% if accounts %}
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <td>#</td>
+                            <td>Account id</td>
+                            <td>Nickname</td>
+                        </tr>
+                        </thead>
+                        {% for user in accounts %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ user.account_id }}</td>
+                                <td>{{ user.nickname }}</td>
+                                <td><a href="{% url 'account_profile' account_id=user.account_id %}">View account info</a></td>
                             </tr>
                         {% endfor %}
                     </table>
